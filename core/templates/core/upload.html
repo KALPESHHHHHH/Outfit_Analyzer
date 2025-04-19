@@ -1,0 +1,531 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Upload Outfit - StyleAI{% endblock %}
+
+{% block background_image %}
+<style>
+:root {
+    --primary-color: #7c4dff;
+    --primary-light: #9a76ff;
+    --primary-dark: #4a25b2;
+    --secondary-color: #ff6d00;
+    --text-light: rgba(255, 255, 255, 0.9);
+    --text-lighter: rgba(255, 255, 255, 0.7);
+    --dark-overlay: rgba(0, 0, 0, 0.7);
+    --light-overlay: rgba(255, 255, 255, 0.1);
+    --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    --transition: all 0.3s ease;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', 'Arial', sans-serif;
+    color: white;
+}
+
+body {
+    background-image: url('{% static "images/home.jpg" %}');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+}
+
+.content-container {
+    padding: 40px 20px;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+}
+
+.upload-container {
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 40px;
+    border-radius: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.upload-header {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 1.5rem;
+    font-size: 2.8rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    position: relative;
+    display: inline-block;
+}
+
+.upload-header::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 80px;
+    height: 4px;
+    background: var(--primary-color);
+    border-radius: 2px;
+}
+
+.upload-subheader {
+    color: var(--text-lighter);
+    margin-bottom: 3rem;
+    font-size: 1.3rem;
+    line-height: 1.6;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.upload-card {
+    background: rgba(30, 30, 40, 0.6);
+    border: none;
+    border-radius: 16px;
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+    transition: var(--transition);
+    backdrop-filter: blur(5px);
+    margin-bottom: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.upload-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.upload-area {
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    padding: 3rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+    background-color: rgba(255, 255, 255, 0.05);
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.upload-area::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(124, 77, 255, 0.1) 0%, transparent 70%);
+    transform: rotate(45deg);
+    transition: var(--transition);
+    opacity: 0;
+}
+
+.upload-area:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: var(--primary-light);
+}
+
+.upload-area:hover::before {
+    opacity: 1;
+}
+
+.upload-area.highlight {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: var(--primary-color);
+    animation: pulse 2s infinite;
+}
+
+.upload-icon {
+    font-size: 4rem;
+    color: var(--primary-light);
+    margin-bottom: 1.5rem;
+    transition: var(--transition);
+    text-shadow: 0 0 15px rgba(124, 77, 255, 0.5);
+}
+
+.upload-area:hover .upload-icon {
+    transform: translateY(-5px) scale(1.1);
+    color: white;
+}
+
+.upload-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 1rem;
+}
+
+.upload-text {
+    color: var(--text-lighter);
+    margin-bottom: 2rem;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 1.1rem;
+}
+
+.image-preview-container {
+    width: 100%;
+    height: 400px;
+    margin: 0 auto;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: var(--card-shadow);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: var(--transition);
+}
+
+.image-preview-container:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+}
+
+.image-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition);
+}
+
+.preview-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+    gap: 15px;
+}
+
+.btn-upload {
+    padding: 0.9rem 2.2rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: var(--transition);
+    letter-spacing: 0.5px;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-outline-primary {
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: transparent;
+}
+
+.btn-outline-primary:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: white;
+    transform: translateY(-2px);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: 0.5s;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-light);
+    border-color: var(--primary-light);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(124, 77, 255, 0.3);
+}
+
+.btn-primary:hover::before {
+    left: 100%;
+}
+
+#id_image {
+    position: absolute;
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    z-index: -1;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        border-color: rgba(255, 255, 255, 0.3);
+        box-shadow: 0 0 0 0 rgba(124, 77, 255, 0);
+    }
+    50% {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 10px rgba(124, 77, 255, 0.1);
+    }
+}
+
+.upload-tips {
+    margin-top: 3rem;
+    padding: 2rem;
+    background: rgba(20, 20, 30, 0.6);
+    border-radius: 12px;
+    border-left: 4px solid var(--primary-color);
+    color: white;
+    backdrop-filter: blur(5px);
+}
+
+.upload-tips h5 {
+    color: white;
+    margin-bottom: 1.5rem;
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+}
+
+.upload-tips h5 i {
+    margin-right: 10px;
+    color: var(--primary-light);
+}
+
+.upload-tips ul {
+    padding-left: 1.5rem;
+    color: var(--text-light);
+}
+
+.upload-tips li {
+    margin-bottom: 0.8rem;
+    position: relative;
+    list-style-type: none;
+    padding-left: 1.5rem;
+}
+
+.upload-tips li::before {
+    content: '•';
+    color: var(--primary-light);
+    font-size: 1.5rem;
+    position: absolute;
+    left: 0;
+    top: -3px;
+}
+
+/* Loading spinner animation */
+.spinner-border {
+    width: 1.2rem;
+    height: 1.2rem;
+    border-width: 0.2em;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .upload-container {
+        padding: 30px 20px;
+    }
+    
+    .upload-header {
+        font-size: 2.2rem;
+    }
+    
+    .upload-subheader {
+        font-size: 1.1rem;
+    }
+    
+    .preview-actions {
+        flex-direction: column;
+    }
+    
+    .btn-upload {
+        width: 100%;
+    }
+}
+
+/* Floating animation for upload icon */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.upload-icon {
+    animation: float 3s ease-in-out infinite;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-container">
+    <div class="upload-container">
+        <div class="text-center mb-5">
+            <h1 class="upload-header">
+                Upload Your Outfit
+            </h1>
+            <p class="upload-subheader">
+                Get AI-powered fashion recommendations by uploading a photo of your outfit. Our advanced AI analyzes your style and provides personalized suggestions to help you elevate your fashion game.
+            </p>
+        </div>
+
+        <div class="upload-card">
+            <div class="card-body p-5">
+                <form method="post" enctype="multipart/form-data" id="uploadForm">
+                    {% csrf_token %}
+
+                    <div class="upload-area mb-4" id="uploadArea">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <h4 class="upload-title">Drag & Drop Your Image</h4>
+                        <p class="upload-text">Upload a high-quality photo of your outfit. We support JPG, PNG files up to 10MB.</p>
+
+                        <label for="id_image" class="btn btn-primary btn-upload">
+                            <i class="fas fa-folder-open me-2"></i> Select Image
+                        </label>
+                        {{ form.image }}
+                    </div>
+
+                    <div id="imagePreview" class="text-center mb-4" style="display: none;">
+                        <div class="image-preview-container mb-4">
+                            <img src="{% static 'images/placeholder.svg' %}" alt="Preview" class="image-preview" id="previewImage">
+                        </div>
+                        <div class="preview-actions">
+                            <button type="button" class="btn btn-outline-primary btn-upload" id="removeImage">
+                                <i class="fas fa-trash-alt me-2"></i> Remove
+                            </button>
+                            <button type="submit" class="btn btn-primary btn-upload" id="analyzeBtn">
+                                <span id="analyzeText">
+                                    <i class="fas fa-magic me-2"></i> Analyze Outfit
+                                </span>
+                                <span id="loadingSpinner" style="display: none;">
+                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    Analyzing...
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="upload-tips">
+            <h5><i class="fas fa-lightbulb"></i> Upload Tips</h5>
+            <ul>
+                <li>Take photos in good natural lighting for best results</li>
+                <li>Stand straight with arms slightly away from your body</li>
+                <li>Ensure your photo shows your full outfit clearly</li>
+                <li>Avoid busy backgrounds when possible</li>
+                <li>Upload high-resolution images for accurate analysis</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const imageInput = document.getElementById('id_image');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('previewImage');
+        const uploadArea = document.getElementById('uploadArea');
+        const removeBtn = document.getElementById('removeImage');
+        const form = document.getElementById('uploadForm');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const analyzeText = document.getElementById('analyzeText');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+
+        // Preview image when selected
+        imageInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    uploadArea.style.display = 'none';
+                    imagePreview.style.display = 'block';
+                }
+
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+
+        // Remove image
+        removeBtn.addEventListener('click', function() {
+            imageInput.value = '';
+            previewImg.src = "{% static 'images/placeholder.svg' %}";
+            uploadArea.style.display = 'flex';
+            imagePreview.style.display = 'none';
+        });
+
+        // Show loading spinner on form submit
+        form.addEventListener('submit', function() {
+            analyzeText.style.display = 'none';
+            loadingSpinner.style.display = 'inline-block';
+            analyzeBtn.disabled = true;
+        });
+
+        // Drag and drop functionality
+        const dropArea = document.getElementById('uploadArea');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+            dropArea.classList.add('highlight');
+        }
+
+        function unhighlight() {
+            dropArea.classList.remove('highlight');
+        }
+
+        dropArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+
+            if (files && files.length) {
+                imageInput.files = files;
+                const event = new Event('change');
+                imageInput.dispatchEvent(event);
+            }
+        }
+        
+        // Add floating animation to upload icon
+        const uploadIcon = document.querySelector('.upload-icon i');
+        uploadIcon.style.animation = 'float 3s ease-in-out infinite';
+    });
+</script>
+{% endblock %}

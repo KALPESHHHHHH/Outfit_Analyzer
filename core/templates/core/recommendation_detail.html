@@ -1,0 +1,1073 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Fit Check - StyleAI{% endblock %}
+
+{% block background_image %}
+<style>
+    body {
+        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('{% static "images/1.jpg" %}') no-repeat center center fixed;
+        background-size: cover;
+        font-family: 'Roboto', sans-serif;
+    }
+
+    body[data-bs-theme="dark"]::before {
+        background-color: rgba(0, 0, 0, 0.85);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-container py-4">
+    <!-- Back Button -->
+    <div class="mb-4 fade-in">
+        <a href="{% url 'core:recommendations' %}" class="btn text-black bg-success hover-animate">
+            <i class="fas fa-arrow-left me-2"></i> Back to All Recommendations
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left Column - Outfit Image and Chat -->
+        <div class="col-lg-4 slide-in-left">
+            <div class="card border-0 shadow hover-animate mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0"><i class="fas fa-tshirt me-2"></i>Your Outfit</h5>
+                </div>
+                <div class="card-body p-0">
+                    <img src="{{ outfit.image.url }}" class="img-fluid w-100" alt="Your outfit" style="height: 550px; object-fit: cover;">
+                </div>
+                <div class="card-footer text-muted py-3">
+                    <i class="far fa-calendar-alt me-2"></i>Uploaded on {{ outfit.uploaded_at|date:"F j, Y" }}
+                </div>
+            </div>
+
+            <div class="card border-0 shadow hover-animate">
+                <div class="card-header text-black py-3">
+                    <h5 class="mb-0"><i class="fas fa-robot me-2"></i>AI Fashion Assistant</h5>
+                </div>
+                <div class="card-body p-3">
+                    <form id="chatForm">
+                        <div class="input-group mb-3">
+                            <input type="text" id="userQuery" class="form-control" placeholder="Ask anything about your outfit..." aria-label="Ask about your outfit">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                        <small class="text-muted">Example: "What shoes would go well with this?"</small>
+                    </form>
+                    <div id="chatResponse" class="mt-3" style="max-height: 500px; overflow-y: auto; background-color:rgb(3, 3, 3);"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Enhanced Recommendations -->
+        <div class="col-lg-8 slide-in-right">
+            <!-- Main Analysis Card -->
+            <div class="card border-0 shadow hover-animate mb-4">
+                <div class="card-header bg-primary text-black py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-star me-2"></i>Comprehensive Analysis</h5>
+                    <span class="badge bg-light text-primary fs-6" id="outfitScore">{{ recommendation.percentage_score }}%</span>
+                </div>
+                <div class="card-body p-3">
+                    <div class="analysis-response mb-4">
+                        <h6><i class="fas fa-comment me-2 text-primary"></i>AI Assessment</h6>
+                        <p class="mb-0" id="detailedFeedback">{{ recommendation.response }}</p>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="card border-success border-2 h-100">
+                                <div class="card-header bg-success bg-opacity-10 text-success py-3">
+                                    <h6 class="mb-0"><i class="fas fa-thumbs-up me-2"></i>Strengths</h6>
+                                </div>
+                                <div class="card-body p-3">
+                                    {% if strengths %}
+                                    <ul class="list-group list-group-flush">
+                                        {% for strength in strengths %}
+                                            <li class="list-group-item border-0 py-2">
+                                                <i class="fas fa-check-circle text-success me-2"></i>{{ strength }}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                    {% else %}
+                                        <p class="text-muted mb-0">No strengths identified</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card border-warning border-2 h-100">
+                                <div class="card-header bg-warning bg-opacity-10 text-warning py-3">
+                                    <h6 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Improvements</h6>
+                                </div>
+                                <div class="card-body p-3">
+                                    {% if improvements %}
+                                    <ul class="list-group list-group-flush">
+                                        {% for improvement in improvements %}
+                                            <li class="list-group-item border-0 py-2">
+                                                <i class="fas fa-magic text-warning me-2"></i>{{ improvement }}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                    {% else %}
+                                        <p class="text-muted mb-0">No improvements suggested</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Analysis Sections -->
+                    {% if recommendation.color_analysis %}
+                    <div class="row g-3 mb-4">
+                        <div class="col-12">
+                            <div class="card border-info border-2">
+                                <div class="card-header bg-info bg-opacity-10 text-info py-3">
+                                    <h6 class="mb-0"><i class="fas fa-palette me-2"></i>Color Analysis</h6>
+                                </div>
+                                <div class="card-body p-3">
+                                    <p class="mb-0">{{ recommendation.color_analysis }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if recommendation.seasonal_analysis %}
+                    <div class="row g-3 mb-4">
+                        <div class="col-12">
+                            <div class="card border-secondary border-2">
+                                <div class="card-header bg-secondary bg-opacity-10 text-secondary py-3">
+                                    <h6 class="mb-0"><i class="fas fa-cloud-sun me-2"></i>Seasonal Analysis</h6>
+                                </div>
+                                <div class="card-body p-3">
+                                    <p class="mb-0">{{ recommendation.seasonal_analysis }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if recommendation.quick_tip %}
+                    <div class="quick-tip p-3 bg-info bg-opacity-10 rounded border-start border-info border-4 mb-4">
+                        <h6 class="d-flex align-items-center text-info">
+                            <i class="fas fa-bolt me-2"></i>
+                            Quick Fashion Tip
+                        </h6>
+                        <p class="mb-0">{{ recommendation.quick_tip }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Enhanced Alternative Outfits -->
+            <div class="card border-0 shadow hover-animate mb-4">
+                <div class="card-header bg-primary text-black py-3">
+                    <h5 class="mb-0"><i class="fas fa-sync-alt me-2"></i>Alternative Outfits</h5>
+                </div>
+                <div class="card-body p-3 black-bg-text">
+                    {% if alternative_outfits %}
+                        <div class="row g-3">
+                            {% for outfit in alternative_outfits %}
+                            <div class="col-md-6">
+                                <div class="card h-100 border-0 shadow-sm black-bg-text">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-primary">
+                                            <i class="fas fa-outfit me-2"></i>{{ outfit.name }}
+                                        </h6>
+                                        <p class="card-text small">{{ outfit.description }}</p>
+                                        {% if outfit.image %}
+                                        <img src="{{ outfit.image.url }}" class="img-fluid rounded mt-2" alt="{{ outfit.name }}">
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-secondary py-2 black-bg-text">
+                            <i class="fas fa-info-circle me-2"></i>No alternative outfits suggested
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Enhanced Personalized Suggestions -->
+            <div class="card border-0 shadow hover-animate">
+                <div class="card-header bg-primary text-black py-3">
+                    <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Occasion-Specific Suggestions</h5>
+                </div>
+                <div class="card-body p-3 black-bg-text">
+                    {% if personalized_suggestions %}
+                        <div class="accordion" id="personalizedSuggestions">
+                            {% for suggestion in personalized_suggestions %}
+                                <div class="accordion-item mb-2 border-0 black-bg-text">
+                                    <h2 class="accordion-header" id="suggestionHeading{{ forloop.counter }}">
+                                        <button class="accordion-button py-2 {% if not forloop.first %}collapsed{% endif %}"
+                                                type="button"
+                                                data-bs-toggle="collapse"
+                                                data-bs-target="#suggestionCollapse{{ forloop.counter }}"
+                                                aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}"
+                                                aria-controls="suggestionCollapse{{ forloop.counter }}">
+                                            <i class="fas fa-calendar-check me-2 text-primary"></i>{{ suggestion.occasion }}
+                                        </button>
+                                    </h2>
+                                    <div id="suggestionCollapse{{ forloop.counter }}"
+                                         class="accordion-collapse collapse {% if forloop.first %}show{% endif %}"
+                                         aria-labelledby="suggestionHeading{{ forloop.counter }}"
+                                         data-bs-parent="#personalizedSuggestions">
+                                        <div class="accordion-body bg-light p-3 black-bg-text">
+                                            <p class="mb-2">{{ suggestion.description }}</p>
+                                            {% if suggestion.image %}
+                                            <img src="{{ suggestion.image.url }}" class="img-fluid rounded mt-2" alt="{{ suggestion.occasion }}">
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-secondary py-2 black-bg-text">
+                            <i class="fas fa-info-circle me-2"></i>No personalized suggestions available
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Instagram Post Analysis -->
+          <!-- Instagram Post Analysis -->
+<div class="card border-0 shadow hover-animate mt-4">
+    <div class="card-header bg-primary text-black py-3">
+        <h5 class="mb-0"><i class="fab fa-instagram me-2"></i>Instagram Post Analysis</h5>
+    </div>
+    <div class="card-body p-3 black-bg-text" id="instagramAnalysis">
+        <!-- Instagram analysis will be dynamically inserted here -->
+    </div>
+</div>
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+    document.getElementById('chatForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const query = document.getElementById('userQuery').value;
+        const responseDiv = document.getElementById('chatResponse');
+        const instagramAnalysisDiv = document.getElementById('instagramAnalysis');
+
+        if (!query.trim()) {
+            responseDiv.innerHTML = `
+                <div class="alert alert-warning py-2">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    Please enter a question about your outfit
+                </div>
+            `;
+            return;
+        }
+
+        // Show loading state with delay notice
+        responseDiv.innerHTML = `
+            <div class="alert alert-info py-2">
+                <div class="d-flex align-items-center">
+                    <div class="spinner-border spinner-border-sm me-2" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <div>
+                        <p class="mb-1">Analyzing your outfit...</p>
+                        <p class="small mb-0 text-muted">This may take 10-15 seconds to provide quality analysis</p>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        fetch("{% url 'core:fashion_feedback' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                question: query,
+                image_path: "{{ outfit.image.url }}"
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            let responseHTML = `
+                <div class="fashion-response mb-3">
+                    <div class="response-header p-3 rounded-top black-bg-text">
+                        <h5 class="mb-0">
+                            <i class="fas fa-robot me-2"></i>
+                            ${data.direct_response || "Here's my fashion analysis"}
+                        </h5>
+                    </div>
+                    <div class="response-body p-3 rounded-bottom black-bg-text">
+            `;
+
+            if (data.score) {
+                document.getElementById('outfitScore').textContent = `${data.score}%`;
+                responseHTML += `
+                    <div class="d-flex align-items-center mb-3 p-3 bg-black rounded">
+                        <div class="score-circle bg-primary text-black rounded-circle d-flex align-items-center justify-content-center me-3"
+                             style="width: 60px; height: 60px;">
+                            <span class="h5 mb-0">${data.score}%</span>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">Outfit Score</h6>
+                            <p class="small mb-0">${data.score_explanation || ''}</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (data.strengths && data.strengths.length) {
+                responseHTML += `
+                    <div class="mb-3 p-3 bg-black rounded">
+                        <h6 class="d-flex align-items-center">
+                            <span class="strength-icon bg-success text-black rounded-circle d-flex align-items-center justify-content-center me-2"
+                                  style="width: 30px; height: 30px;">
+                                <i class="fas fa-check"></i>
+                            </span>
+                            What Works Well
+                        </h6>
+                        <ul class="mb-0">
+                            ${data.strengths.map(strength => `
+                                <li class="py-1 d-flex align-items-start">
+                                    <i class="fas fa-circle text-success me-2 mt-1" style="font-size: 8px;"></i>
+                                    <span>${strength}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+
+            if (data.improvements && data.improvements.length) {
+                responseHTML += `
+                    <div class="mb-3 p-3 bg-black rounded">
+                        <h6 class="d-flex align-items-center">
+                            <span class="improvement-icon bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center me-2"
+                                  style="width: 30px; height: 30px;">
+                                <i class="fas fa-lightbulb"></i>
+                            </span>
+                            What Could Be Improved
+                        </h6>
+                        <ul class="mb-0">
+                            ${data.improvements.map(imp => `
+                                <li class="py-1 d-flex align-items-start">
+                                    <i class="fas fa-circle text-warning me-2 mt-1" style="font-size: 8px;"></i>
+                                    <span>${imp}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+
+            if (data.alternative_outfits && data.alternative_outfits.length) {
+                responseHTML += `
+                    <div class="mb-3 p-3 bg-black rounded">
+                        <h6 class="d-flex align-items-center">
+                            <span class="outfit-icon bg-info text-black rounded-circle d-flex align-items-center justify-content-center me-2"
+                                  style="width: 30px; height: 30px;">
+                                <i class="fas fa-sync-alt"></i>
+                            </span>
+                            Alternative Outfit Ideas
+                        </h6>
+                        <div class="row g-2 mt-2">
+                            ${data.alternative_outfits.map(outfit => `
+                                <div class="col-md-6 mb-2">
+                                    <div class="p-2 bg-light rounded black-bg-text">
+                                        <strong class="text-primary">${outfit.name}:</strong>
+                                        <span class="small">${outfit.description}</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (data.quick_tip) {
+                responseHTML += `
+                    <div class="quick-tip p-3 bg-info bg-opacity-10 rounded border-start border-info border-4 black-bg-text">
+                        <h6 class="d-flex align-items-center text-info">
+                            <i class="fas fa-bolt me-2"></i>
+                            Quick Fashion Tip
+                        </h6>
+                        <p class="mb-0">${data.quick_tip}</p>
+                    </div>
+                `;
+            }
+
+            responseHTML += `</div></div>`;
+            responseDiv.innerHTML = responseHTML;
+
+            // Instagram Post Analysis
+            if (data.instagram_analysis && data.instagram_analysis.feedback) {
+                instagramAnalysisDiv.innerHTML = `
+                    <h6><i class="fab fa-instagram me-2 text-primary"></i>Instagram Post Analysis</h6>
+                    <p class="mb-0">${data.instagram_analysis.feedback}</p>
+                    <ul class="mb-0 mt-2">
+                        ${data.instagram_analysis.captions.map(caption => `
+                            <li class="py-1 d-flex align-items-start">
+                                <i class="fas fa-quote-left text-primary me-2 mt-1" style="font-size: 12px;"></i>
+                                <span>${caption}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                `;
+            } else {
+                instagramAnalysisDiv.innerHTML = `
+                    <div class="alert alert-secondary py-2 black-bg-text">
+                        <i class="fas fa-info-circle me-2"></i>No Instagram post analysis available
+                    </div>
+                `;
+            }
+
+            // Smooth scroll to the response
+            responseDiv.scrollTo({
+                top: responseDiv.scrollHeight,
+                behavior: 'smooth'
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            responseDiv.innerHTML = `
+                <div class="alert alert-danger py-2">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Error getting fashion advice. Please try again.
+                </div>
+            `;
+        })
+        .finally(() => {
+            document.getElementById('userQuery').value = '';
+        });
+    });
+</script>
+
+
+<style>
+    .fashion-response {
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1rem;
+    }
+
+    .response-header {
+        background-color: black; /* Ensure background color is black */
+        color: white; /* Ensure text color is white */
+    }
+
+    .response-body {
+        background-color: black; /* Ensure background color is black */
+        color: white; /* Ensure text color is white */
+    }
+
+    .score-circle {
+        font-weight: 600;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .quick-tip {
+        transition: all 0.3s ease;
+    }
+
+    .quick-tip:hover {
+        transform: translateX(5px);
+    }
+
+    #chatResponse {
+        scrollbar-width: thin;
+        scrollbar-color: #888 #f1f1f1;
+    }
+
+    #chatResponse::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    #chatResponse::-webkit-scrollbar-track {
+        background:rgb(2, 2, 2);
+        border-radius: 4px;
+    }
+
+    #chatResponse::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+    }
+
+    #chatResponse::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
+    .strength-icon, .improvement-icon, .outfit-icon {
+        box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Ensure specificity for the sections */
+    .black-bg-text {
+        background-color: black !important;
+        color: white !important;
+    }
+
+    .black-bg-text p, .black-bg-text span, .black-bg-text h6, .black-bg-text .accordion-button {
+        color: white !important;
+    }
+
+    .black-bg-text .card-title, .black-bg-text .card-text {
+        color: white !important;
+    }
+
+    @media (max-width: 768px) {
+        .fashion-response {
+            margin-left: -15px;
+            margin-right: -15px;
+            border-radius: 0;
+        }
+
+        #chatResponse {
+            max-height: 300px;
+        }
+    }
+</style>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% comment %} {% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Fit Check - StyleAI{% endblock %}
+
+{% block background_image %}
+<style>
+    body {
+        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('{% static "images/1.jpg" %}') no-repeat center center fixed;
+        background-size: cover;
+        font-family: 'Roboto', sans-serif;
+    }
+
+    body[data-bs-theme="dark"]::before {
+        background-color: rgba(0, 0, 0, 0.85);
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-container py-4">
+    <!-- Back Button -->
+    <div class="mb-4 fade-in">
+        <a href="{% url 'core:recommendations' %}" class="btn text-black bg-success hover-animate">
+            <i class="fas fa-arrow-left me-2"></i> Back to All Recommendations
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left Column - Outfit Image and Chat -->
+        <div class="col-lg-4 slide-in-left">
+            <div class="card border-0 shadow hover-animate mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0"><i class="fas fa-tshirt me-2"></i>Your Outfit</h5>
+                </div>
+                <div class="card-body p-0">
+                    <img src="{{ outfit.image.url }}" class="img-fluid w-100" alt="Your outfit" style="height: 550px; object-fit: cover;">
+                </div>
+                <div class="card-footer text-muted py-3">
+                    <i class="far fa-calendar-alt me-2"></i>Uploaded on {{ outfit.uploaded_at|date:"F j, Y" }}
+                </div>
+            </div>
+
+            <div class="card border-0 shadow hover-animate">
+                <div class="card-header text-black py-3">
+                    <h5 class="mb-0"><i class="fas fa-robot me-2"></i>AI Fashion Assistant</h5>
+                </div>
+                <div class="card-body p-3">
+                    <form id="chatForm">
+                        <div class="input-group mb-3">
+                            <input type="text" id="userQuery" class="form-control" placeholder="Ask anything about your outfit..." aria-label="Ask about your outfit">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                        <small class="text-muted">Example: "What shoes would go well with this?"</small>
+                    </form>
+                    <div id="chatResponse" class="mt-3" style="max-height: 500px; overflow-y: auto; background-color:rgb(3, 3, 3);"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Enhanced Recommendations -->
+        <div class="col-lg-8 slide-in-right">
+            <!-- Main Analysis Card -->
+            <div class="card border-0 shadow hover-animate mb-4">
+                <div class="card-header bg-primary text-black py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-star me-2"></i>Comprehensive Analysis</h5>
+                    <span class="badge bg-light text-primary fs-6" id="outfitScore">{{ recommendation.percentage_score }}%</span>
+                </div>
+                <div class="card-body p-3">
+                    <div class="analysis-response mb-4">
+                        <h6><i class="fas fa-comment me-2 text-primary"></i>AI Assessment</h6>
+                        <p class="mb-0" id="detailedFeedback">{{ recommendation.response }}</p>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="card border-success border-2 h-100">
+                                <div class="card-header bg-success bg-opacity-10 text-success py-3">
+                                    <h6 class="mb-0"><i class="fas fa-thumbs-up me-2"></i>Strengths</h6>
+                                </div>
+                                <div class="card-body p-3">
+                                    {% if strengths %}
+                                    <ul class="list-group list-group-flush">
+                                        {% for strength in strengths %}
+                                            <li class="list-group-item border-0 py-2">
+                                                <i class="fas fa-check-circle text-success me-2"></i>{{ strength }}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                    {% else %}
+                                        <p class="text-muted mb-0">No strengths identified</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card border-warning border-2 h-100">
+                                <div class="card-header bg-warning bg-opacity-10 text-warning py-3">
+                                    <h6 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Improvements</h6>
+                                </div>
+                                <div class="card-body p-3">
+                                    {% if improvements %}
+                                    <ul class="list-group list-group-flush">
+                                        {% for improvement in improvements %}
+                                            <li class="list-group-item border-0 py-2">
+                                                <i class="fas fa-magic text-warning me-2"></i>{{ improvement }}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                    {% else %}
+                                        <p class="text-muted mb-0">No improvements suggested</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Analysis Sections -->
+                    {% if recommendation.color_analysis %}
+                    <div class="row g-3 mb-4">
+                        <div class="col-12">
+                            <div class="card border-info border-2">
+                                <div class="card-header bg-info bg-opacity-10 text-info py-3">
+                                    <h6 class="mb-0"><i class="fas fa-palette me-2"></i>Color Analysis</h6>
+                                </div>
+                                <div class="card-body p-3">
+                                    <p class="mb-0">{{ recommendation.color_analysis }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if recommendation.seasonal_analysis %}
+                    <div class="row g-3 mb-4">
+                        <div class="col-12">
+                            <div class="card border-secondary border-2">
+                                <div class="card-header bg-secondary bg-opacity-10 text-secondary py-3">
+                                    <h6 class="mb-0"><i class="fas fa-cloud-sun me-2"></i>Seasonal Analysis</h6>
+                                </div>
+                                <div class="card-body p-3">
+                                    <p class="mb-0">{{ recommendation.seasonal_analysis }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if recommendation.quick_tip %}
+                    <div class="quick-tip p-3 bg-info bg-opacity-10 rounded border-start border-info border-4 mb-4">
+                        <h6 class="d-flex align-items-center text-info">
+                            <i class="fas fa-bolt me-2"></i>
+                            Quick Fashion Tip
+                        </h6>
+                        <p class="mb-0">{{ recommendation.quick_tip }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Enhanced Alternative Outfits -->
+            <div class="card border-0 shadow hover-animate mb-4">
+                <div class="card-header bg-primary text-black py-3">
+                    <h5 class="mb-0"><i class="fas fa-sync-alt me-2"></i>Alternative Outfits</h5>
+                </div>
+                <div class="card-body p-3 black-bg-text">
+                    {% if alternative_outfits %}
+                        <div class="row g-3">
+                            {% for outfit in alternative_outfits %}
+                            <div class="col-md-6">
+                                <div class="card h-100 border-0 shadow-sm black-bg-text">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-primary">
+                                            <i class="fas fa-outfit me-2"></i>{{ outfit.name }}
+                                        </h6>
+                                        <p class="card-text small">{{ outfit.description }}</p>
+                                        {% if outfit.image %}
+                                        <img src="{{ outfit.image.url }}" class="img-fluid rounded mt-2" alt="{{ outfit.name }}">
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-secondary py-2 black-bg-text">
+                            <i class="fas fa-info-circle me-2"></i>No alternative outfits suggested
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Enhanced Personalized Suggestions -->
+            <div class="card border-0 shadow hover-animate">
+                <div class="card-header bg-primary text-black py-3">
+                    <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Occasion-Specific Suggestions</h5>
+                </div>
+                <div class="card-body p-3 black-bg-text">
+                    {% if personalized_suggestions %}
+                        <div class="accordion" id="personalizedSuggestions">
+                            {% for suggestion in personalized_suggestions %}
+                                <div class="accordion-item mb-2 border-0 black-bg-text">
+                                    <h2 class="accordion-header" id="suggestionHeading{{ forloop.counter }}">
+                                        <button class="accordion-button py-2 {% if not forloop.first %}collapsed{% endif %}"
+                                                type="button"
+                                                data-bs-toggle="collapse"
+                                                data-bs-target="#suggestionCollapse{{ forloop.counter }}"
+                                                aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}"
+                                                aria-controls="suggestionCollapse{{ forloop.counter }}">
+                                            <i class="fas fa-calendar-check me-2 text-primary"></i>{{ suggestion.occasion }}
+                                        </button>
+                                    </h2>
+                                    <div id="suggestionCollapse{{ forloop.counter }}"
+                                         class="accordion-collapse collapse {% if forloop.first %}show{% endif %}"
+                                         aria-labelledby="suggestionHeading{{ forloop.counter }}"
+                                         data-bs-parent="#personalizedSuggestions">
+                                        <div class="accordion-body bg-light p-3 black-bg-text">
+                                            <p class="mb-2">{{ suggestion.description }}</p>
+                                            {% if suggestion.image %}
+                                            <img src="{{ suggestion.image.url }}" class="img-fluid rounded mt-2" alt="{{ suggestion.occasion }}">
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-secondary py-2 black-bg-text">
+                            <i class="fas fa-info-circle me-2"></i>No personalized suggestions available
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('chatForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const query = document.getElementById('userQuery').value;
+        const responseDiv = document.getElementById('chatResponse');
+
+        if (!query.trim()) {
+            responseDiv.innerHTML = `
+                <div class="alert alert-warning py-2">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    Please enter a question about your outfit
+                </div>
+            `;
+            return;
+        }
+
+        // Show loading state with delay notice
+        responseDiv.innerHTML = `
+            <div class="alert alert-info py-2">
+                <div class="d-flex align-items-center">
+                    <div class="spinner-border spinner-border-sm me-2" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <div>
+                        <p class="mb-1">Analyzing your outfit...</p>
+                        <p class="small mb-0 text-muted">This may take 10-15 seconds to provide quality analysis</p>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        fetch("{% url 'core:fashion_feedback' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                question: query,
+                image_path: "{{ outfit.image.url }}"
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            let responseHTML = `
+                <div class="fashion-response mb-3">
+                    <div class="response-header p-3 rounded-top black-bg-text">
+                        <h5 class="mb-0">
+                            <i class="fas fa-robot me-2"></i>
+                            ${data.response || "Here's my fashion analysis"}
+                        </h5>
+                    </div>
+                    <div class="response-body p-3 rounded-bottom black-bg-text">
+            `;
+
+            if (data.score) {
+                document.getElementById('outfitScore').textContent = `${data.score}%`;
+                responseHTML += `
+                    <div class="d-flex align-items-center mb-3 p-3 bg-black rounded">
+                        <div class="score-circle bg-primary text-black rounded-circle d-flex align-items-center justify-content-center me-3"
+                             style="width: 60px; height: 60px;">
+                            <span class="h5 mb-0">${data.score}%</span>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">Outfit Score</h6>
+                            <p class="small mb-0">${data.score_explanation || ''}</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (data.strengths && data.strengths.length) {
+                responseHTML += `
+                    <div class="mb-3 p-3 bg-black rounded">
+                        <h6 class="d-flex align-items-center">
+                            <span class="strength-icon bg-success text-black rounded-circle d-flex align-items-center justify-content-center me-2"
+                                  style="width: 30px; height: 30px;">
+                                <i class="fas fa-check"></i>
+                            </span>
+                            What Works Well
+                        </h6>
+                        <ul class="mb-0">
+                            ${data.strengths.map(strength => `
+                                <li class="py-1 d-flex align-items-start">
+                                    <i class="fas fa-circle text-success me-2 mt-1" style="font-size: 8px;"></i>
+                                    <span>${strength}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+
+            if (data.improvements && data.improvements.length) {
+                responseHTML += `
+                    <div class="mb-3 p-3 bg-black rounded">
+                        <h6 class="d-flex align-items-center">
+                            <span class="improvement-icon bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center me-2"
+                                  style="width: 30px; height: 30px;">
+                                <i class="fas fa-lightbulb"></i>
+                            </span>
+                            What Could Be Improved
+                        </h6>
+                        <ul class="mb-0">
+                            ${data.improvements.map(imp => `
+                                <li class="py-1 d-flex align-items-start">
+                                    <i class="fas fa-circle text-warning me-2 mt-1" style="font-size: 8px;"></i>
+                                    <span>${imp}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+
+            if (data.alternative_outfits && data.alternative_outfits.length) {
+                responseHTML += `
+                    <div class="mb-3 p-3 bg-black rounded">
+                        <h6 class="d-flex align-items-center">
+                            <span class="outfit-icon bg-info text-black rounded-circle d-flex align-items-center justify-content-center me-2"
+                                  style="width: 30px; height: 30px;">
+                                <i class="fas fa-sync-alt"></i>
+                            </span>
+                            Alternative Outfit Ideas
+                        </h6>
+                        <div class="row g-2 mt-2">
+                            ${data.alternative_outfits.map(outfit => `
+                                <div class="col-md-6 mb-2">
+                                    <div class="p-2 bg-light rounded black-bg-text">
+                                        <strong class="text-primary">${outfit.name}:</strong>
+                                        <span class="small">${outfit.description}</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (data.quick_tip) {
+                responseHTML += `
+                    <div class="quick-tip p-3 bg-info bg-opacity-10 rounded border-start border-info border-4 black-bg-text">
+                        <h6 class="d-flex align-items-center text-info">
+                            <i class="fas fa-bolt me-2"></i>
+                            Quick Fashion Tip
+                        </h6>
+                        <p class="mb-0">${data.quick_tip}</p>
+                    </div>
+                `;
+            }
+
+            responseHTML += `</div></div>`;
+            responseDiv.innerHTML = responseHTML;
+
+            // Smooth scroll to the response
+            responseDiv.scrollTo({
+                top: responseDiv.scrollHeight,
+                behavior: 'smooth'
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            responseDiv.innerHTML = `
+                <div class="alert alert-danger py-2">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Error getting fashion advice. Please try again.
+                </div>
+            `;
+        })
+        .finally(() => {
+            document.getElementById('userQuery').value = '';
+        });
+    });
+</script>
+
+<style>
+    .fashion-response {
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1rem;
+    }
+
+    .response-header {
+        background-color: black; /* Ensure background color is black */
+        color: white; /* Ensure text color is white */
+    }
+
+    .response-body {
+        background-color: black; /* Ensure background color is black */
+        color: white; /* Ensure text color is white */
+    }
+
+    .score-circle {
+        font-weight: 600;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .quick-tip {
+        transition: all 0.3s ease;
+    }
+
+    .quick-tip:hover {
+        transform: translateX(5px);
+    }
+
+    #chatResponse {
+        scrollbar-width: thin;
+        scrollbar-color: #888 #f1f1f1;
+    }
+
+    #chatResponse::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    #chatResponse::-webkit-scrollbar-track {
+        background:rgb(2, 2, 2);
+        border-radius: 4px;
+    }
+
+    #chatResponse::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+    }
+
+    #chatResponse::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
+    .strength-icon, .improvement-icon, .outfit-icon {
+        box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Ensure specificity for the sections */
+    .black-bg-text {
+        background-color: black !important;
+        color: white !important;
+    }
+
+    .black-bg-text p, .black-bg-text span, .black-bg-text h6, .black-bg-text .accordion-button {
+        color: white !important;
+    }
+
+    .black-bg-text .card-title, .black-bg-text .card-text {
+        color: white !important;
+    }
+
+    @media (max-width: 768px) {
+        .fashion-response {
+            margin-left: -15px;
+            margin-right: -15px;
+            border-radius: 0;
+        }
+
+        #chatResponse {
+            max-height: 300px;
+        }
+    }
+</style>
+{% endblock %} {% endcomment %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
