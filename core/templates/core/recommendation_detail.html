@@ -14,6 +14,200 @@
     body[data-bs-theme="dark"]::before {
         background-color: rgba(0, 0, 0, 0.85);
     }
+
+    .content-container {
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+
+    .btn {
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        padding: 0.75rem 2rem;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+        display: inline-block;
+        text-align: center;
+        cursor: pointer;
+        border: none;
+    }
+
+    .btn-primary {
+        background: #007bff;
+        box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0, 123, 255, 0.5);
+    }
+
+    .btn-outline-primary {
+        border: 2px solid #007bff;
+        color: #007bff;
+        background: transparent;
+    }
+
+    .btn-outline-primary:hover {
+        background: #007bff;
+        color: white;
+        border-color: transparent;
+    }
+
+    .card {
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .card-header {
+        font-weight: 600;
+        border-bottom: none;
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    .fashion-response {
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1rem;
+    }
+
+    .response-header {
+        background-color: black;
+        color: white;
+    }
+
+    .response-body {
+        background-color: black;
+        color: white;
+    }
+
+    .score-circle {
+        font-weight: 600;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .quick-tip {
+        transition: all 0.3s ease;
+    }
+
+    .quick-tip:hover {
+        transform: translateX(5px);
+    }
+
+    #chatResponse {
+        scrollbar-width: thin;
+        scrollbar-color: #888 #f1f1f1;
+    }
+
+    #chatResponse::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    #chatResponse::-webkit-scrollbar-track {
+        background: rgb(2, 2, 2);
+        border-radius: 4px;
+    }
+
+    #chatResponse::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+    }
+
+    #chatResponse::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
+    .strength-icon, .improvement-icon, .outfit-icon {
+        box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .black-bg-text {
+        background-color: black !important;
+        color: white !important;
+    }
+
+    .black-bg-text p, .black-bg-text span, .black-bg-text h6, .black-bg-text .accordion-button {
+        color: white !important;
+    }
+
+    .black-bg-text .card-title, .black-bg-text .card-text {
+        color: white !important;
+    }
+
+    @media (max-width: 768px) {
+        .content-container {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .card-header h5, .card-header h6 {
+            font-size: 1.1rem;
+        }
+
+        .card-body p, .card-body span, .card-body h6 {
+            font-size: 0.9rem;
+        }
+
+        .fashion-response {
+            margin-left: -15px;
+            margin-right: -15px;
+            border-radius: 0;
+        }
+
+        #chatResponse {
+            max-height: 300px;
+        }
+
+        .quick-tip {
+            padding: 1rem;
+        }
+
+        .quick-tip h6 {
+            font-size: 1rem;
+        }
+
+        .quick-tip p {
+            font-size: 0.9rem;
+        }
+
+        .score-circle {
+            width: 50px;
+            height: 50px;
+        }
+
+        .response-header, .response-body {
+            padding: 1rem;
+        }
+
+        .response-body ul li {
+            font-size: 0.9rem;
+        }
+
+        .strength-icon, .improvement-icon, .outfit-icon {
+            width: 25px;
+            height: 25px;
+        }
+
+        .strength-icon i, .improvement-icon i, .outfit-icon i {
+            font-size: 0.8rem;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -236,20 +430,17 @@
             </div>
 
             <!-- Instagram Post Analysis -->
-          <!-- Instagram Post Analysis -->
-<div class="card border-0 shadow hover-animate mt-4">
-    <div class="card-header bg-primary text-black py-3">
-        <h5 class="mb-0"><i class="fab fa-instagram me-2"></i>Instagram Post Analysis</h5>
-    </div>
-    <div class="card-body p-3 black-bg-text" id="instagramAnalysis">
-        <!-- Instagram analysis will be dynamically inserted here -->
-    </div>
-</div>
-
+            <div class="card border-0 shadow hover-animate mt-4">
+                <div class="card-header bg-primary text-black py-3">
+                    <h5 class="mb-0"><i class="fab fa-instagram me-2"></i>Instagram Post Analysis</h5>
+                </div>
+                <div class="card-body p-3 black-bg-text" id="instagramAnalysis">
+                    <!-- Instagram analysis will be dynamically inserted here -->
+                </div>
+            </div>
         </div>
     </div>
 </div>
-
 
 <script>
     document.getElementById('chatForm').addEventListener('submit', function(event) {
@@ -448,92 +639,6 @@
         });
     });
 </script>
-
-
-<style>
-    .fashion-response {
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        margin-bottom: 1rem;
-    }
-
-    .response-header {
-        background-color: black; /* Ensure background color is black */
-        color: white; /* Ensure text color is white */
-    }
-
-    .response-body {
-        background-color: black; /* Ensure background color is black */
-        color: white; /* Ensure text color is white */
-    }
-
-    .score-circle {
-        font-weight: 600;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-
-    .quick-tip {
-        transition: all 0.3s ease;
-    }
-
-    .quick-tip:hover {
-        transform: translateX(5px);
-    }
-
-    #chatResponse {
-        scrollbar-width: thin;
-        scrollbar-color: #888 #f1f1f1;
-    }
-
-    #chatResponse::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    #chatResponse::-webkit-scrollbar-track {
-        background:rgb(2, 2, 2);
-        border-radius: 4px;
-    }
-
-    #chatResponse::-webkit-scrollbar-thumb {
-        background: #888;
-        border-radius: 4px;
-    }
-
-    #chatResponse::-webkit-scrollbar-thumb:hover {
-        background: #555;
-    }
-
-    .strength-icon, .improvement-icon, .outfit-icon {
-        box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
-    }
-
-    /* Ensure specificity for the sections */
-    .black-bg-text {
-        background-color: black !important;
-        color: white !important;
-    }
-
-    .black-bg-text p, .black-bg-text span, .black-bg-text h6, .black-bg-text .accordion-button {
-        color: white !important;
-    }
-
-    .black-bg-text .card-title, .black-bg-text .card-text {
-        color: white !important;
-    }
-
-    @media (max-width: 768px) {
-        .fashion-response {
-            margin-left: -15px;
-            margin-right: -15px;
-            border-radius: 0;
-        }
-
-        #chatResponse {
-            max-height: 300px;
-        }
-    }
-</style>
 {% endblock %}
 
 

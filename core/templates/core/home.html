@@ -350,7 +350,67 @@ body::before {
     transform: translateY(-3px);
     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
 }
-
+/* Add this at the end of your existing CSS within the <style> tag */
+    @media (max-width: 768px) {
+        /* Remove padding from left and right for mobile view */
+        .content-container,
+        .hero-section,
+        .dark-section,
+        .cta-section {
+            padding-left: 0;
+            padding-right: 0;
+        }
+    
+        /* Make text smaller for mobile view */
+        .hero-title {
+            font-size: clamp(1.5rem, 4vw, 2rem);
+        }
+    
+        .hero-subtitle {
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+        }
+    
+        .section-title {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+        }
+    
+        .section-subtitle {
+            font-size: clamp(0.9rem, 2vw, 1rem);
+        }
+    
+        .feature-card h3,
+        .step-content h3,
+        .testimonial-card h5 {
+            font-size: 1.1rem;
+        }
+    
+        .feature-card p,
+        .step-content p,
+        .testimonial-card p {
+            font-size: 0.9rem;
+        }
+    
+        /* Ensure buttons are appropriately sized */
+        .btn {
+            padding: 0.5rem 1.5rem;
+            font-size: 0.9rem;
+        }
+    
+        /* Adjust card padding for better fit */
+        .feature-card,
+        .testimonial-card,
+        .step-card {
+            padding: 1rem;
+        }
+    
+        /* Make images responsive */
+        .hero-image,
+        .process-image {
+            width: 100%;
+            height: auto;
+        }
+    }
+    
 /* Responsive Adjustments */
 @media (max-width: 768px) {
     .step-content {
