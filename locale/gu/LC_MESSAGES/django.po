@@ -1,0 +1,107 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-05-18 14:12+0530\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: .\core\templates\core\base.html:8
+msgid "Outfit Recommender"
+msgstr ""
+
+#: .\core\templates\core\base.html:500 .\core\templates\core\base.html:556
+#: .\core\templates\core\base.html:606
+msgid "StyleAI"
+msgstr ""
+
+#: .\core\templates\core\base.html:509 .\core\templates\core\base.html:618
+msgid "Home"
+msgstr ""
+
+#: .\core\templates\core\base.html:515 .\core\templates\core\base.html:619
+msgid "Upload"
+msgstr ""
+
+#: .\core\templates\core\base.html:521 .\core\templates\core\base.html:620
+msgid "Recommendations"
+msgstr ""
+
+#: .\core\templates\core\base.html:527 .\core\templates\core\base.html:621
+msgid "About Us"
+msgstr ""
+
+#: .\core\templates\core\base.html:536
+msgid "Dark Mode"
+msgstr ""
+
+#: .\core\templates\core\base.html:561
+msgid "Language"
+msgstr ""
+
+#: .\core\templates\core\base.html:578
+msgid "Voice Assistant"
+msgstr ""
+
+#: .\core\templates\core\base.html:607
+msgid "AI-powered outfit recommendations to help you look your best every day."
+msgstr ""
+
+#: .\core\templates\core\base.html:616
+msgid "Quick Links"
+msgstr ""
+
+#: .\core\templates\core\base.html:625
+msgid "Support"
+msgstr ""
+
+#: .\core\templates\core\base.html:627
+msgid "FAQ"
+msgstr ""
+
+#: .\core\templates\core\base.html:628
+msgid "Contact"
+msgstr ""
+
+#: .\core\templates\core\base.html:629
+msgid "Feedback"
+msgstr ""
+
+#: .\core\templates\core\base.html:633
+msgid "Newsletter"
+msgstr ""
+
+#: .\core\templates\core\base.html:634
+msgid "Subscribe to get updates on new features and fashion tips."
+msgstr ""
+
+#: .\core\templates\core\base.html:636
+msgid "Your email"
+msgstr ""
+
+#: .\core\templates\core\base.html:637
+msgid "Subscribe"
+msgstr ""
+
+#: .\core\templates\core\base.html:644
+msgid "StyleAI. All rights reserved."
+msgstr ""
+
+#: .\core\templates\core\base.html:648
+msgid "Privacy Policy"
+msgstr ""
+
+#: .\core\templates\core\base.html:649
+msgid "Terms of Service"
+msgstr ""
