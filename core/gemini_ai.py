@@ -444,6 +444,17 @@
 #         ]
 #     }
 
+
+
+
+
+
+
+
+
+
+
+
 import google.generativeai as genai
 import base64
 from django.conf import settings

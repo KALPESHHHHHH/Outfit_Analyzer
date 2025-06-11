@@ -1,4 +1,798 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 {% extends 'core/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Upload Outfit - StyleAI{% endblock %}
+
+{% block background_image %}
+<style>
+    :root {
+        --primary-color: #7c4dff;
+        --primary-light: #9a76ff;
+        --primary-dark: #4a25b2;
+        --secondary-color: #ff6d00;
+        --accent-color: #00e5ff;
+        --text-light: rgba(255, 255, 255, 0.9);
+        --text-lighter: rgba(255, 255, 255, 0.7);
+        --dark-overlay: rgba(0, 0, 0, 0.85);
+        --light-overlay: rgba(255, 255, 255, 0.1);
+        --card-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        --transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        --gradient: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    }
+    
+    @font-face {
+        font-family: 'Poppins';
+        src: url('{% static "fonts/Poppins-Regular.ttf" %}') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+    
+    @font-face {
+        font-family: 'Poppins';
+        src: url('{% static "fonts/Poppins-Bold.ttf" %}') format('truetype');
+        font-weight: bold;
+        font-style: normal;
+    }
+    
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        font-family: 'Poppins', 'Arial', sans-serif;
+        color: white;
+        scroll-behavior: smooth;
+    }
+    
+    body {
+        background-image: url('{% static "images/home.jpg" %}');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        position: relative;
+    }
+    
+    body::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--gradient);
+        opacity: 0.3;
+        z-index: -1;
+    }
+    
+    .content-container {
+        padding: 60px 20px;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .upload-container {
+        max-width: 900px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 50px;
+        border-radius: 24px;
+        background: var(--dark-overlay);
+        backdrop-filter: blur(12px);
+        box-shadow: var(--card-shadow);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        transform-style: preserve-3d;
+        perspective: 1000px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .upload-container::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(124, 77, 255, 0.1) 0%, transparent 70%);
+        transform: rotate(30deg);
+        animation: rotateGradient 30s linear infinite;
+        z-index: -1;
+    }
+    
+    .upload-header {
+        font-weight: 700;
+        color: white;
+        margin-bottom: 1.5rem;
+        font-size: 3rem;
+        text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        position: relative;
+        display: inline-block;
+        background: var(--gradient);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -0.5px;
+    }
+    
+    .upload-header::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 80px;
+        height: 5px;
+        background: var(--accent-color);
+        border-radius: 3px;
+        transform-origin: left;
+        animation: scaleIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    
+    .upload-subheader {
+        color: var(--text-lighter);
+        margin-bottom: 3rem;
+        font-size: 1.25rem;
+        line-height: 1.7;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+        font-weight: 300;
+    }
+    
+    .upload-card {
+        background: rgba(20, 20, 30, 0.7);
+        border: none;
+        border-radius: 20px;
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+        transition: var(--transition);
+        backdrop-filter: blur(8px);
+        margin-bottom: 40px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transform: translateZ(20px);
+    }
+    
+    .upload-card:hover {
+        transform: translateY(-8px) translateZ(20px);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+    }
+    
+    .upload-area {
+        border: 2px dashed rgba(255, 255, 255, 0.3);
+        border-radius: 16px;
+        padding: 4rem 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: var(--transition);
+        background-color: rgba(255, 255, 255, 0.05);
+        min-height: 350px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .upload-area::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(124, 77, 255, 0.15) 0%, transparent 70%);
+        transform: rotate(45deg);
+        transition: var(--transition);
+        opacity: 0;
+    }
+    
+    .upload-area:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-color: var(--accent-color);
+    }
+    
+    .upload-area:hover::before {
+        opacity: 1;
+    }
+    
+    .upload-area.highlight {
+        background-color: rgba(255, 255, 255, 0.15);
+        border-color: var(--primary-color);
+        animation: pulse 2s infinite;
+    }
+    
+    .upload-icon {
+        font-size: 5rem;
+        color: var(--primary-light);
+        margin-bottom: 2rem;
+        transition: var(--transition);
+        text-shadow: 0 0 20px rgba(124, 77, 255, 0.6);
+        position: relative;
+    }
+    
+    .upload-icon::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle, var(--primary-light) 0%, transparent 70%);
+        opacity: 0.3;
+        z-index: -1;
+        border-radius: 50%;
+    }
+    
+    .upload-area:hover .upload-icon {
+        transform: translateY(-5px) scale(1.1);
+        color: white;
+    }
+    
+    .upload-title {
+        font-size: 2rem;
+        font-weight: 600;
+        color: white;
+        margin-bottom: 1rem;
+        letter-spacing: -0.5px;
+    }
+    
+    .upload-text {
+        color: var(--text-lighter);
+        margin-bottom: 2.5rem;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+        font-size: 1.1rem;
+        line-height: 1.6;
+    }
+    
+    .image-preview-container {
+        width: 100%;
+        height: 450px;
+        margin: 0 auto;
+        border-radius: 16px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: var(--card-shadow);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: var(--transition);
+    }
+    
+    .image-preview-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.5) 100%);
+        z-index: 1;
+    }
+    
+    .image-preview-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+    
+    .image-preview {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: var(--transition);
+    }
+    
+    .preview-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2.5rem;
+        gap: 20px;
+    }
+    
+    .btn-upload {
+        padding: 1rem 2.5rem;
+        border-radius: 14px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: var(--transition);
+        letter-spacing: 0.5px;
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+    
+    .btn-outline-primary {
+        color: white;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        background: transparent;
+    }
+    
+    .btn-outline-primary:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-color: var(--accent-color);
+        transform: translateY(-3px);
+        color: var(--accent-color);
+    }
+    
+    .btn-primary {
+        background: var(--gradient);
+        color: white;
+        border: none;
+        box-shadow: 0 5px 15px rgba(124, 77, 255, 0.4);
+    }
+    
+    .btn-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-color) 100%);
+        opacity: 0;
+        transition: var(--transition);
+        z-index: -1;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(124, 77, 255, 0.5);
+    }
+    
+    .btn-primary:hover::before {
+        opacity: 1;
+    }
+    
+    #id_image {
+        position: absolute;
+        width: 0.1px;
+        height: 0.1px;
+        opacity: 0;
+        overflow: hidden;
+        z-index: -1;
+    }
+    
+    @keyframes pulse {
+        0%, 100% {
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 0 0 rgba(124, 77, 255, 0);
+        }
+        50% {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 15px rgba(124, 77, 255, 0.1);
+        }
+    }
+    
+    .upload-tips {
+        margin-top: 3rem;
+        padding: 2.5rem;
+        background: rgba(15, 15, 25, 0.7);
+        border-radius: 16px;
+        border-left: 5px solid var(--accent-color);
+        color: white;
+        backdrop-filter: blur(5px);
+        transition: var(--transition);
+    }
+    
+    .upload-tips:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    .upload-tips h5 {
+        color: white;
+        margin-bottom: 1.5rem;
+        font-size: 1.5rem;
+        display: flex;
+        align-items: center;
+        font-weight: 600;
+    }
+    
+    .upload-tips h5 i {
+        margin-right: 15px;
+        color: var(--accent-color);
+        font-size: 1.8rem;
+    }
+    
+    .upload-tips ul {
+        padding-left: 0;
+        color: var(--text-light);
+    }
+    
+    .upload-tips li {
+        margin-bottom: 1rem;
+        position: relative;
+        list-style-type: none;
+        padding-left: 2.5rem;
+        line-height: 1.6;
+    }
+    
+    .upload-tips li::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 8px;
+        width: 16px;
+        height: 16px;
+        background-color: var(--accent-color);
+        border-radius: 50%;
+    }
+    
+    /* Loading spinner animation */
+    .spinner-border {
+        width: 1.5rem;
+        height: 1.5rem;
+        border-width: 0.2em;
+        border-color: white transparent white transparent;
+    }
+    
+    /* Floating animation for upload icon */
+    @keyframes float {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-15px);
+        }
+    }
+    
+    @keyframes scaleIn {
+        0% {
+            transform: scaleX(0);
+        }
+        100% {
+            transform: scaleX(1);
+        }
+    }
+    
+    @keyframes rotateGradient {
+        0% {
+            transform: rotate(30deg);
+        }
+        100% {
+            transform: rotate(390deg);
+        }
+    }
+    
+    .upload-icon {
+        animation: float 4s ease-in-out infinite;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 992px) {
+        .upload-container {
+            padding: 40px 30px;
+        }
+        
+        .upload-header {
+            font-size: 2.5rem;
+        }
+        
+        .upload-subheader {
+            font-size: 1.1rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .content-container {
+            padding: 40px 15px;
+        }
+        
+        .upload-container {
+            padding: 30px 20px;
+            border-radius: 20px;
+        }
+    
+        .upload-header {
+            font-size: 2rem;
+        }
+    
+        .upload-subheader {
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+    
+        .upload-title {
+            font-size: 1.6rem;
+        }
+    
+        .upload-text {
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+        }
+    
+        .upload-tips h5 {
+            font-size: 1.3rem;
+        }
+    
+        .upload-tips ul {
+            font-size: 0.95rem;
+        }
+    
+        .btn-upload {
+            padding: 0.9rem 1.8rem;
+            font-size: 1rem;
+        }
+    
+        .upload-card {
+            margin-bottom: 30px;
+        }
+    
+        .image-preview-container {
+            height: 350px;
+        }
+    
+        .preview-actions {
+            flex-direction: column;
+            gap: 12px;
+        }
+    
+        .btn-upload {
+            width: 100%;
+        }
+        
+        .upload-area {
+            padding: 3rem 1.5rem;
+            min-height: 300px;
+        }
+        
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .upload-container {
+            padding: 25px 15px;
+        }
+        
+        .upload-header {
+            font-size: 1.8rem;
+        }
+        
+        .image-preview-container {
+            height: 280px;
+        }
+        
+        .upload-tips {
+            padding: 1.5rem;
+        }
+        
+        .upload-tips li {
+            padding-left: 2rem;
+        }
+        
+        .upload-tips li::before {
+            width: 12px;
+            height: 12px;
+            top: 6px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-container">
+    <div class="upload-container">
+        <div class="text-center mb-5">
+            <h1 class="upload-header">
+                Upload Your Outfit
+            </h1>
+            <p class="upload-subheader">
+                Get AI-powered fashion recommendations by uploading a photo of your outfit. Our advanced AI analyzes your style and provides personalized suggestions to help you elevate your fashion game.
+            </p>
+        </div>
+
+        <div class="upload-card">
+            <div class="card-body p-5">
+                <form method="post" enctype="multipart/form-data" id="uploadForm">
+                    {% csrf_token %}
+
+                    <div class="upload-area mb-4" id="uploadArea">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <h4 class="upload-title">Drag & Drop Your Image</h4>
+                        <p class="upload-text">Upload a high-quality photo of your outfit. We support JPG, PNG files up to 10MB.</p>
+
+                        <label for="id_image" class="btn btn-primary btn-upload">
+                            <i class="fas fa-folder-open me-2"></i> Select Image
+                        </label>
+                        {{ form.image }}
+                    </div>
+
+                    <div id="imagePreview" class="text-center mb-4" style="display: none;">
+                        <div class="image-preview-container mb-4">
+                            <img src="{% static 'images/placeholder.svg' %}" alt="Preview" class="image-preview" id="previewImage">
+                        </div>
+                        <div class="preview-actions">
+                            <button type="button" class="btn btn-outline-primary btn-upload" id="removeImage">
+                                <i class="fas fa-trash-alt me-2"></i> Remove
+                            </button>
+                            <button type="submit" class="btn btn-primary btn-upload" id="analyzeBtn">
+                                <span id="analyzeText">
+                                    <i class="fas fa-magic me-2"></i> Analyze Outfit
+                                </span>
+                                <span id="loadingSpinner" style="display: none;">
+                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    Analyzing...
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="upload-tips">
+            <h5><i class="fas fa-lightbulb"></i> Pro Tips for Best Results</h5>
+            <ul>
+                <li>Take photos in good natural lighting for best results</li>
+                <li>Stand straight with arms slightly away from your body</li>
+                <li>Ensure your photo shows your full outfit clearly</li>
+                <li>Avoid busy backgrounds when possible</li>
+                <li>Upload high-resolution images for accurate analysis</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const imageInput = document.getElementById('id_image');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('previewImage');
+        const uploadArea = document.getElementById('uploadArea');
+        const removeBtn = document.getElementById('removeImage');
+        const form = document.getElementById('uploadForm');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const analyzeText = document.getElementById('analyzeText');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+
+        // Preview image when selected
+        imageInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    uploadArea.style.display = 'none';
+                    imagePreview.style.display = 'block';
+                    
+                    // Add subtle animation when image loads
+                    imagePreview.style.opacity = '0';
+                    imagePreview.style.transform = 'translateY(20px)';
+                    setTimeout(() => {
+                        imagePreview.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                        imagePreview.style.opacity = '1';
+                        imagePreview.style.transform = 'translateY(0)';
+                    }, 50);
+                }
+
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+
+        // Remove image
+        removeBtn.addEventListener('click', function() {
+            imageInput.value = '';
+            previewImg.src = "{% static 'images/placeholder.svg' %}";
+            
+            // Add animation when removing image
+            imagePreview.style.opacity = '0';
+            imagePreview.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                uploadArea.style.display = 'flex';
+                imagePreview.style.display = 'none';
+                
+                // Animate upload area reappearance
+                uploadArea.style.opacity = '0';
+                uploadArea.style.transform = 'scale(0.9)';
+                setTimeout(() => {
+                    uploadArea.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                    uploadArea.style.opacity = '1';
+                    uploadArea.style.transform = 'scale(1)';
+                }, 50);
+            }, 500);
+        });
+
+        // Show loading spinner on form submit
+        form.addEventListener('submit', function() {
+            analyzeText.style.display = 'none';
+            loadingSpinner.style.display = 'inline-block';
+            analyzeBtn.disabled = true;
+            
+            // Add pulse animation to button while loading
+            analyzeBtn.style.animation = 'pulse 1.5s infinite';
+        });
+
+        // Drag and drop functionality
+        const dropArea = document.getElementById('uploadArea');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+            dropArea.classList.add('highlight');
+        }
+
+        function unhighlight() {
+            dropArea.classList.remove('highlight');
+        }
+
+        dropArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+
+            if (files && files.length) {
+                imageInput.files = files;
+                const event = new Event('change');
+                imageInput.dispatchEvent(event);
+            }
+        }
+        
+        // Add floating animation to upload icon
+        const uploadIcon = document.querySelector('.upload-icon i');
+        uploadIcon.style.animation = 'float 4s ease-in-out infinite';
+        
+        // Add hover effect to cards
+        const cards = document.querySelectorAll('.upload-card, .upload-tips');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-8px)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0)';
+            });
+        });
+    });
+</script>
+{% endblock %}
+
+
+{% comment %} {% extends 'core/base.html' %}
 {% load static %}
 {% load crispy_forms_tags %}
 
@@ -566,4 +1360,4 @@
         uploadIcon.style.animation = 'float 3s ease-in-out infinite';
     });
 </script>
-{% endblock %}
+{% endblock %} {% endcomment %}
